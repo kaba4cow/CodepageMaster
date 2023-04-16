@@ -105,13 +105,4 @@ public class FontGenerator {
 		return image;
 	}
 
-	public static void main(String[] args) throws IOException {
-		File dir = new File("fonts");
-		File[] list = dir.listFiles();
-		for (File file : list) {
-			String name = file.getName().replaceAll("Px437_", "").replaceAll("_", " ").replaceAll(".ttf", "");
-			new FontGenerator(file.getAbsolutePath(), 8, 8, name);
-		}
-	}
-
 }

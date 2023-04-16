@@ -54,11 +54,6 @@ public class Main extends JFrame implements ActionListener, ChangeListener {
 
 	public Main() {
 		super("Codepage Master");
-		setDefaultCloseOperation(EXIT_ON_CLOSE);
-		setSize(850, 550);
-		setLayout(null);
-		setLocationRelativeTo(null);
-		setResizable(false);
 
 		File homeFile = new File(Settings.getImportDirectory());
 		if (!homeFile.exists() || !homeFile.isDirectory())
@@ -155,6 +150,11 @@ public class Main extends JFrame implements ActionListener, ChangeListener {
 		add(squareCheckBox);
 		add(exportButton);
 
+		setDefaultCloseOperation(EXIT_ON_CLOSE);
+		setSize(850, 550);
+		setLayout(null);
+		setLocationRelativeTo(null);
+		setResizable(false);
 		setVisible(true);
 	}
 

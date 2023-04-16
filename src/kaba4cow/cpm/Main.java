@@ -40,11 +40,14 @@ public class Main extends JFrame implements ActionListener, ChangeListener {
 	private final JComboBox<String> fontComboBox;
 	private final JButton browseButton;
 	private final JButton exportButton;
-	private final JLabel fontLabel;
+	private final JLabel fontImageLabel;
 
 	private final JSpinner glyphWidthSpinner;
 	private final JSpinner glyphHeightSpinner;
 	private final JSpinner fontSizeSpinner;
+
+	private final JSpinner offsetXSpinner;
+	private final JSpinner offsetYSpinner;
 
 	private Font currentFont;
 	private BufferedImage fontImage;
@@ -74,29 +77,41 @@ public class Main extends JFrame implements ActionListener, ChangeListener {
 		JLabel glyphSizeLabel = new JLabel("Glyph:");
 		glyphSizeLabel.setLocation(512, 25);
 		glyphSizeLabel.setSize(100, 25);
-		glyphWidthSpinner = new JSpinner(new SpinnerNumberModel(16, 8, 256, 1));
+		glyphWidthSpinner = new JSpinner(new SpinnerNumberModel(16, 1, 256, 1));
 		glyphWidthSpinner.addChangeListener(this);
 		glyphWidthSpinner.setLocation(612, 25);
 		glyphWidthSpinner.setSize(100, 25);
-		glyphHeightSpinner = new JSpinner(new SpinnerNumberModel(16, 8, 256, 1));
+		glyphHeightSpinner = new JSpinner(new SpinnerNumberModel(16, 1, 256, 1));
 		glyphHeightSpinner.addChangeListener(this);
 		glyphHeightSpinner.setLocation(712, 25);
 		glyphHeightSpinner.setSize(100, 25);
 
 		JLabel fontSizeLabel = new JLabel("Font:");
-		fontSizeLabel.setLocation(512, 50);
+		fontSizeLabel.setLocation(512, 75);
 		fontSizeLabel.setSize(100, 25);
 		fontSizeSpinner = new JSpinner(new SpinnerNumberModel(16, 1, 256, 1));
 		fontSizeSpinner.addChangeListener(this);
-		fontSizeSpinner.setLocation(612, 50);
+		fontSizeSpinner.setLocation(612, 75);
 		fontSizeSpinner.setSize(200, 25);
 
-		fontLabel = new JLabel();
-		fontLabel.setLocation(0, 0);
-		fontLabel.setSize(512, 512);
+		JLabel offsetLabel = new JLabel("Offset:");
+		offsetLabel.setLocation(512, 50);
+		offsetLabel.setSize(100, 25);
+		offsetXSpinner = new JSpinner(new SpinnerNumberModel(0, -256, 256, 1));
+		offsetXSpinner.addChangeListener(this);
+		offsetXSpinner.setLocation(612, 50);
+		offsetXSpinner.setSize(100, 25);
+		offsetYSpinner = new JSpinner(new SpinnerNumberModel(0, -256, 256, 1));
+		offsetYSpinner.addChangeListener(this);
+		offsetYSpinner.setLocation(712, 50);
+		offsetYSpinner.setSize(100, 25);
+
+		fontImageLabel = new JLabel();
+		fontImageLabel.setLocation(0, 0);
+		fontImageLabel.setSize(512, 512);
 
 		squareCheckBox = new JCheckBox("Square Image");
-		squareCheckBox.setLocation(512, 75);
+		squareCheckBox.setLocation(512, 100);
 		squareCheckBox.setSize(300, 25);
 		squareCheckBox.addActionListener(this);
 
@@ -122,20 +137,23 @@ public class Main extends JFrame implements ActionListener, ChangeListener {
 		browseButton.addActionListener(this);
 
 		exportButton = new JButton("Export");
-		exportButton.setLocation(512, 100);
+		exportButton.setLocation(512, 125);
 		exportButton.setSize(300, 25);
 		exportButton.addActionListener(this);
 
+		add(fontImageLabel);
+		add(fontComboBox);
+		add(browseButton);
 		add(glyphSizeLabel);
 		add(glyphWidthSpinner);
 		add(glyphHeightSpinner);
 		add(fontSizeLabel);
 		add(fontSizeSpinner);
-		add(fontComboBox);
-		add(fontLabel);
-		add(browseButton);
-		add(exportButton);
+		add(offsetLabel);
+		add(offsetXSpinner);
+		add(offsetYSpinner);
 		add(squareCheckBox);
+		add(exportButton);
 
 		setVisible(true);
 	}
@@ -153,6 +171,8 @@ public class Main extends JFrame implements ActionListener, ChangeListener {
 		} else if (source == browseButton) {
 			int option = fileOpenChooser.showOpenDialog(this);
 			File file = fileOpenChooser.getSelectedFile();
+			if (file == null)
+				return;
 			Settings.setOpenDirectory(file.getParent());
 			if (option == JFileChooser.APPROVE_OPTION) {
 				Font font = FontGenerator.registerFont(file);
@@ -195,8 +215,8 @@ public class Main extends JFrame implements ActionListener, ChangeListener {
 	}
 
 	private void updateFont() {
-		fontImage = FontGenerator.createSpriteFont(currentFont, Font.PLAIN, getGlyphWidth(), getGlyphHeight(),
-				getFontSize());
+		fontImage = FontGenerator.createSpriteFont(currentFont, getOffsetX(), -getOffsetY(), getGlyphWidth(),
+				getGlyphHeight(), getFontSize());
 		if (fontImage == null)
 			fontImage = new BufferedImage(1, 1, BufferedImage.TYPE_INT_RGB);
 		Image scaledImage = fontImage.getScaledInstance(512, 512, Image.SCALE_FAST);
@@ -209,7 +229,7 @@ public class Main extends JFrame implements ActionListener, ChangeListener {
 			graphics.drawImage(scaledImage, 0, 0, null);
 			graphics.dispose();
 		}
-		fontLabel.setIcon(icon);
+		fontImageLabel.setIcon(icon);
 	}
 
 	private int getGlyphWidth() {
@@ -222,6 +242,14 @@ public class Main extends JFrame implements ActionListener, ChangeListener {
 
 	private int getFontSize() {
 		return ((Number) fontSizeSpinner.getValue()).intValue();
+	}
+
+	private int getOffsetX() {
+		return ((Number) offsetXSpinner.getValue()).intValue();
+	}
+
+	private int getOffsetY() {
+		return ((Number) offsetYSpinner.getValue()).intValue();
 	}
 
 	public static void main(String[] args) {

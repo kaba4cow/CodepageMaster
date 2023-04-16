@@ -6,9 +6,6 @@ import java.awt.Graphics2D;
 import java.awt.GraphicsEnvironment;
 import java.awt.image.BufferedImage;
 import java.io.File;
-import java.io.IOException;
-
-import javax.imageio.ImageIO;
 
 public class FontGenerator {
 
@@ -39,19 +36,6 @@ public class FontGenerator {
 			'\u2229', '\u2261', '\u00B1', '\u2265', '\u2264', '\u2320', '\u2321', '\u00F7', '\u2248', '\u00B0',
 			'\u2219', '\u00B7', '\u221A', '\u207F', '\u00B2', '\u25A0', '\u00A0' };
 
-	public FontGenerator(String fontName, int glyphSize, float fontSize, String output) {
-		File file = new File(fontName);
-		System.out.println(fontName);
-		BufferedImage image = createSpriteFont(file.getAbsolutePath(), Font.PLAIN, glyphSize, glyphSize, fontSize);
-
-		try {
-			ImageIO.write(image, "PNG", new File("output/" + output + ".png"));
-			System.out.println("Finished");
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-	}
-
 	public static Font[] getAvailableFonts() {
 		GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
 		return ge.getAllFonts();
@@ -68,18 +52,11 @@ public class FontGenerator {
 		}
 	}
 
-	public static BufferedImage createSpriteFont(String path, int style, int glyphWidth, int glyphHeight,
-			float fontSize) {
-		File file = new File(path);
-		Font font = registerFont(file);
-		return createSpriteFont(font, style, glyphWidth, glyphHeight, fontSize);
-	}
-
-	public static BufferedImage createSpriteFont(Font font, int style, int glyphWidth, int glyphHeight,
+	public static BufferedImage createSpriteFont(Font font, int offsetX, int offsetY, int glyphWidth, int glyphHeight,
 			float fontSize) {
 		if (font == null)
 			return null;
-		font = font.deriveFont(style, fontSize);
+		font = font.deriveFont(Font.PLAIN, fontSize);
 
 		int imageWidth = 16 * glyphWidth;
 		int imageHeight = 16 * glyphHeight;
@@ -91,13 +68,15 @@ public class FontGenerator {
 		graphics.setColor(Color.white);
 		graphics.setFont(font);
 
+		offsetY += glyphHeight - 1;
+
 		int glyphIndex = 0;
 		for (int y = 0; y < 16; y++)
 			for (int x = 0; x < 16; x++) {
 				if (glyphIndex >= CHARSET.length)
 					break;
 				char glyph = CHARSET[glyphIndex];
-				graphics.drawString(Character.toString(glyph), x * glyphWidth, y * glyphHeight + glyphHeight - 1);
+				graphics.drawString(Character.toString(glyph), x * glyphWidth + offsetX, y * glyphHeight + offsetY);
 				glyphIndex++;
 			}
 		graphics.dispose();
